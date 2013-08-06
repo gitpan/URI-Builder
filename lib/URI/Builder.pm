@@ -20,11 +20,11 @@ URI::Builder - URI objects optimised for manipulation
 
 =head1 VERSION
 
-0.01
+0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 DESCRIPTION
 
@@ -45,24 +45,23 @@ use Scalar::Util qw( blessed );
 use Carp qw( confess );
 
 # Utility functions
-sub flatten {
+sub _flatten {
     return map {
-        ref $_ eq 'ARRAY' ? flatten(@$_)
-      : ref $_ eq 'HASH'  ? flatten_hash($_)
+        ref $_ eq 'ARRAY' ? _flatten(@$_)
+      : ref $_ eq 'HASH'  ? _flatten_hash($_)
       : $_
     } @_ = @_;
 }
 
-sub flatten_hash {
+sub _flatten_hash {
     my $hash = shift;
 
     return map {
         my ($k, $v) = ($_, $hash->{$_});
-        map { $k => $_ } flatten $v
+        $v = '' unless defined $v;
+        map { $k => $_ } _flatten $v
     } keys %$hash;
 }
-
-use namespace::clean;
 
 use overload ('""' => \&as_string, fallback => 1);
 
@@ -134,7 +133,7 @@ BEGIN {
         *$glob = $listish{$field} ? sub {
             my $self = shift;
             my @old = @{ $self->{$field} || []};
-            $self->{$field} = [ flatten @_ ] if @_;
+            $self->{$field} = [ _flatten @_ ] if @_;
             return @old;
         }
         : sub {
@@ -190,7 +189,8 @@ sub new {
         }
     }
 
-    $_ = [ flatten $_ ] for grep defined && !ref, @opts{ keys %listish };
+    $_ = [ _flatten $_ ]
+        for grep defined && ref ne 'ARRAY', @opts{ keys %listish };
 
     # Still no scheme? Default to http
     # $opts{scheme} ||= 'http';
@@ -201,7 +201,7 @@ sub new {
 
     for my $field (sort keys %opts) {
         if (my $method = $self->can($field)) {
-            $method->($self, flatten delete $opts{$field});
+            $method->($self, _flatten delete $opts{$field});
         }
     }
 
@@ -283,7 +283,7 @@ sub clone {
         $clone{$list} &&= [ @{ $clone{$list} || [] } ];
     }
 
-    return $self->new(%clone);
+    return ref($self)->new(%clone);
 }
 
 =head2 as_string
@@ -343,35 +343,28 @@ sub uri {
 Returns the default port for the current object's scheme. This is obtained
 from the appropriate L<URI> subclass. See L<URI/default_port>.
 
-=cut
-
-my %port;
-sub default_port {
-    my $self = shift;
-    my $scheme = $self->scheme || 'http';
-    return $port{$scheme} ||= URI::implementor($scheme)->default_port;
-
-}
-
 =head2 secure
 
-See L<URI/secure>.
+Returns true if the current scheme is a secure one, false otherwise. See
+L<URI/secure>.
 
 =cut
 
-my %secure;
-sub secure {
+sub _implementor {
     my $self = shift;
-    my $scheme = $self->scheme || 'http';
-    return $secure{$scheme} ||= URI::implementor($scheme)->secure;
+
+    return URI::implementor($self->scheme || 'http');
 }
+
+sub default_port { shift->_implementor->default_port }
+sub secure       { shift->_implementor->secure       }
 
 =head2 authority
 
 Returns the 'authority' section of the URI. In our case this is obtained by
 combining C<userinfo>, C<host> and C<port> together as appropriate.
 
-Note that this is a read-only opertion.
+Note that this is a read-only operation.
 
 =cut
 
@@ -506,7 +499,7 @@ sub query_param {
         my @old_values = @form[ map $_ + 1, @indices ];
 
         if (@values) {
-            @values = flatten @values;
+            @values = _flatten @values;
             splice @form, pop @indices, 2 while @indices > @values;
 
             my $last_index = @indices ? $indices[-1] + 2 : @form;
@@ -541,7 +534,7 @@ Appends fields to the end of the C<query_form>. Returns nothing.
 sub query_param_append {
     my ($self, $key, @values) = @_;
 
-    $self->query_form($self->query_form, map { $key => $_ } flatten @values);
+    $self->query_form($self->query_form, map { $key => $_ } _flatten @values);
 
     return;
 }
@@ -575,7 +568,7 @@ sub query_form_hash {
     my @new;
 
     if (my %form = @_ == 1 && ref $_[0] eq 'HASH' ? %{ $_[0] } : @_) {
-        @new = flatten_hash(\%form);
+        @new = _flatten_hash(\%form);
     }
 
     unless (defined wantarray) {

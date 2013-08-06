@@ -1,9 +1,13 @@
+use strict;
+use warnings;
+
 use Test::More;
 
 use URI::Builder;
 
+my @cases;
 BEGIN {
-    our @cases = (
+    @cases = (
         {
             args => {
                 uri => 'http://localhost',
@@ -141,13 +145,18 @@ BEGIN {
                 path_segments => [qw( one two three )],
             },
             expect => '//localhost/one/two/three?foo',
+        }, {
+            args => {
+                # one pair only to avoid relying on hash order
+                query_form => { a => "b" },
+            },
+            expect => '?a=b',
         }
     );
 
     plan tests => @cases + 0;
 }
 
-for my $case (our @cases) {
+for my $case (@cases) {
     is( URI::Builder->new(%{$case->{args}})->as_string, $case->{expect} );
 }
-
