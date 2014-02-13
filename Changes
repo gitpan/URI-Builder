@@ -1,12 +1,6 @@
-Revision history for perl module URI::Builder
+Revision history for Perl extension URI-Builder
 
-0.03 Not Released
-    - Fixed the format of this file (thanks to Neil Bowers)
+0.01 2014-02-13T03:15:05Z
 
-0.02 2013-08-06
-    - Remove dependency on namespace::clean
-    - Allow hashref in query_form constructor option
-    - Fix clone method
+    - original version
 
-0.01 2013-08-05
-    - Initial release

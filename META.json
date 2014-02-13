@@ -1,42 +1,75 @@
 {
-   "abstract" : "URI objects optimised for manipulation",
+   "abstract" : "Tiny URL builder",
    "author" : [
-      "unknown"
+      "Tokuhiro Matsuno <tokuhirom@gmail.com>"
    ],
-   "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4007, CPAN::Meta::Converter version 2.132140",
+   "dynamic_config" : 0,
+   "generated_by" : "Minilla/v0.11.0",
    "license" : [
-      "artistic_1"
+      "perl_5"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : "2"
    },
    "name" : "URI-Builder",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "xt",
+         "inc",
+         "share",
+         "eg",
+         "examples",
+         "author",
+         "builder"
+      ]
+   },
    "prereqs" : {
       "configure" : {
          "requires" : {
+            "CPAN::Meta" : "0",
+            "CPAN::Meta::Prereqs" : "0",
             "Module::Build" : "0.38"
+         }
+      },
+      "develop" : {
+         "requires" : {
+            "Test::CPAN::Meta" : "0",
+            "Test::MinimumVersion" : "0.10108",
+            "Test::Pod" : "1.41",
+            "Test::Spellunker" : "v0.2.7"
          }
       },
       "runtime" : {
          "requires" : {
-            "URI" : "1.60",
-            "perl" : "v5.6.0"
+            "URL::Encode" : "0",
+            "perl" : "5.008005"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Test::More" : "0.98",
+            "Tie::IxHash" : "0"
          }
       }
    },
    "provides" : {
       "URI::Builder" : {
          "file" : "lib/URI/Builder.pm",
-         "version" : "0.03"
+         "version" : "0.01"
       }
    },
    "release_status" : "stable",
    "resources" : {
-      "license" : [
-         "http://www.perlfoundation.org/artistic_license_1_0"
-      ]
+      "bugtracker" : {
+         "web" : "https://github.com/tokuhirom/URI-Builder/issues"
+      },
+      "homepage" : "https://github.com/tokuhirom/URI-Builder",
+      "repository" : {
+         "url" : "git://github.com/tokuhirom/URI-Builder.git",
+         "web" : "https://github.com/tokuhirom/URI-Builder"
+      }
    },
-   "version" : "0.03"
+   "version" : "0.01"
 }
