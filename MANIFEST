@@ -1,12 +1,12 @@
 Build.PL
 Changes
-LICENSE
-META.json
-README.md
-cpanfile
 lib/URI/Builder.pm
-minil.toml
-t/00_compile.t
-t/01_simple.t
+Makefile.PL
+MANIFEST			This list of files
+META.json
 META.yml
-MANIFEST
+README
+t/abs_rel.t
+t/clone.t
+t/construct.t
+t/query.t
